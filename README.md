@@ -5,6 +5,14 @@ Built with Flutter, running on **Windows, macOS, Linux, Android, and iOS** from 
 
 OpenPlanetarium is offline-first: all star, constellation, and deep-sky data is bundled, so the full sky works without a network connection. Survey imagery and extended catalogs can be downloaded on demand.
 
+## Download
+
+Prebuilt binaries are available on the [Releases page](https://github.com/kenyasue/OpenPlanetarium/releases):
+
+- **Windows**: download `OpenPlanetarium-<version>-windows-x64.zip` from the [latest release](https://github.com/kenyasue/OpenPlanetarium/releases/latest), unzip it anywhere, and run `open_planetarium.exe` (keep the exe together with the DLLs and `data/` folder in the zip)
+
+For other platforms, build from source — see the [Platform Guides](#platform-guides) below.
+
 ## Features
 
 - **Sky view**: Full celestial sphere based on current location, date/time, and direction. Supports panning, zooming (focal zoom), and keyboard controls
