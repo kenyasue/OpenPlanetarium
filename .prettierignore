@@ -1,0 +1,14 @@
+# Documentation and config directories
+.claude/
+.steering/
+docs/
+CLAUDE.md
+
+# Log files
+*log.json
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
