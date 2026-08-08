@@ -1,3 +1,5 @@
+import 'constellation_data.dart';
+
 /// Solar system body identifier (F7).
 enum SolarBodyId {
   sun('Sun', 'Sun'),
@@ -14,6 +16,10 @@ enum SolarBodyId {
 
   final String nameJa;
   final String nameEn;
+
+  /// Name in [language] (Latin shares the English name)
+  String nameIn(NameLanguage language) =>
+      language == NameLanguage.japanese ? nameJa : nameEn;
 }
 
 /// Representative magnitude for display/selection priority (rough value ignoring variation)

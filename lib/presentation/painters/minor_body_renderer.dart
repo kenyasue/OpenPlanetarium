@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 
 import '../../application/sky/minor_body_provider.dart';
+import '../../domain/models/constellation_data.dart';
 import '../../domain/models/minor_body.dart';
 import '../../domain/models/sky_point.dart';
 import 'sky_layer_renderer.dart';
@@ -12,21 +13,39 @@ import 'sky_layer_renderer.dart';
 /// Asteroid = diamond marker; comet = coma plus a stylized anti-sunward tail.
 /// Like DSOs, a zoom-dependent magnitude gate prevents overcrowding at wide FOV.
 class MinorBodyRenderer implements SkyLayerRenderer {
-  MinorBodyRenderer({required this.bodies, required this.sunPosition});
+  MinorBodyRenderer({
+    required this.bodies,
+    required this.sunPosition,
+    this.language = NameLanguage.japanese,
+  });
 
   final List<MinorBodyPosition> bodies;
 
   /// Used to compute comet tail direction (extends away from the Sun)
   final SkyPoint sunPosition;
 
+  /// Display language for object names (shared with constellation names)
+  final NameLanguage language;
+
   static const _asteroidColor = Color(0xFFD8CFA8);
   static const _cometColor = Color(0xFFA8E8DC);
 
-  /// Label cache (id → TextPainter)
+  /// Label cache (id → TextPainter). Cleared on language switch.
   static final Map<String, TextPainter> _labelCache = {};
+  static NameLanguage? _cacheLanguage;
+
+  static void _ensureCacheLanguage(NameLanguage language) {
+    if (_cacheLanguage == language) return;
+    for (final painter in _labelCache.values) {
+      painter.dispose();
+    }
+    _labelCache.clear();
+    _cacheLanguage = language;
+  }
 
   @override
   void render(Canvas canvas, SkyRenderContext context) {
+    _ensureCacheLanguage(language);
     final projection = context.projection;
     final bounds = (Offset.zero & context.state.screenSize).inflate(40);
 
@@ -64,7 +83,7 @@ class MinorBodyRenderer implements SkyLayerRenderer {
               : _cometColor;
           return TextPainter(
             text: TextSpan(
-              text: item.body.displayName,
+              text: item.body.displayNameIn(language),
               style: TextStyle(
                 color: color.withValues(alpha: 0.85),
                 fontSize: 11,

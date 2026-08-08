@@ -39,9 +39,21 @@ class ConstellationSettingsSection extends ConsumerWidget {
       children: [
         Text('Constellation Display', style: theme.textTheme.titleSmall),
         const SizedBox(height: 4),
-        toggle('Constellation Lines', settings.showLines, controller.setShowLines),
-        toggle('Constellation Names', settings.showNames, controller.setShowNames),
-        toggle('Constellation Boundaries', settings.showBoundaries, controller.setShowBoundaries),
+        toggle(
+          'Constellation Lines',
+          settings.showLines,
+          controller.setShowLines,
+        ),
+        toggle(
+          'Constellation Names',
+          settings.showNames,
+          controller.setShowNames,
+        ),
+        toggle(
+          'Constellation Boundaries',
+          settings.showBoundaries,
+          controller.setShowBoundaries,
+        ),
         const SizedBox(height: 4),
         Text(
           'Line Opacity',
@@ -64,7 +76,8 @@ class ConstellationSettingsSection extends ConsumerWidget {
           onChanged: controller.setLineWidth,
         ),
         Text(
-          'Constellation Name Language',
+          // Shared by constellation names and object names (DSO, planets)
+          'Name Language (constellations & objects)',
           style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70),
         ),
         const SizedBox(height: 4),

@@ -6,6 +6,7 @@ import '../../domain/models/sky_object.dart';
 import '../../domain/models/sky_point.dart';
 import '../../domain/models/solar_system.dart';
 import '../../domain/models/star.dart';
+import '../settings/constellation_settings_controller.dart';
 import '../sky/constellation_set_provider.dart';
 import '../sky/dso_provider.dart';
 import '../sky/visible_stars_provider.dart';
@@ -40,11 +41,15 @@ class SearchService {
     required this.namedStars,
     required this.dsos,
     required this.constellations,
+    this.language = NameLanguage.japanese,
   });
 
   final List<Star> namedStars;
   final List<DeepSkyObject> dsos;
   final List<ConstellationData> constellations;
+
+  /// Display language for result labels (matching is always cross-language)
+  final NameLanguage language;
 
   static final _messierPattern = RegExp(
     r'^m\s*(\d{1,3})$',
@@ -80,7 +85,7 @@ class SearchService {
           body.nameEn.toLowerCase().startsWith(lower)) {
         results.add(
           SearchResult(
-            label: body.nameJa,
+            label: body.nameIn(language),
             sublabel: body.nameEn,
             // Position is time-dependent, so the UI resolves it at centerOn time
             target: SkyPoint(0, 0),
@@ -97,7 +102,7 @@ class SearchService {
           c.nameLatin.toLowerCase().contains(lower)) {
         results.add(
           SearchResult(
-            label: c.nameJa,
+            label: c.nameIn(language),
             sublabel: 'Constellation / ${c.nameLatin}',
             target: c.labelAnchor,
             suggestedFovDeg: 50,
@@ -146,7 +151,7 @@ class SearchService {
 
   SearchResult _dsoResult(DeepSkyObject dso) {
     return SearchResult(
-      label: dso.displayName,
+      label: dso.displayNameIn(language),
       sublabel:
           '${dso.objectType.labelJa} / ${dso.catalogLabel}'
           '${dso.magnitude != null ? " mag ${dso.magnitude!.toStringAsFixed(1)}" : ""}',
@@ -178,6 +183,9 @@ final searchServiceProvider = Provider<SearchService>((ref) {
     namedStars: namedStarsAsync.value ?? const [],
     dsos: dsosAsync.value ?? const [],
     constellations: constellationsAsync.value?.constellations ?? const [],
+    language: ref.watch(
+      constellationSettingsProvider.select((s) => s.language),
+    ),
   );
 });
 

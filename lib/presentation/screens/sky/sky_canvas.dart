@@ -129,16 +129,16 @@ class _SkyCanvasState extends ConsumerState<SkyCanvas> {
       if (next.hasError && !next.isLoading && !(previous?.hasError ?? false)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to load star data. Try restarting the app or re-downloading the data.'),
+            content: Text(
+              'Failed to load star data. Try restarting the app or re-downloading the data.',
+            ),
           ),
         );
       }
     });
     ref.listen(minorBodyListProvider, (previous, next) {
       if (next.hasError && !next.isLoading && !(previous?.hasError ?? false)) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to load minor body data.')),
         );
       }
@@ -197,11 +197,16 @@ class _SkyCanvasState extends ConsumerState<SkyCanvas> {
       DsoRenderer(
         dsos: dsos,
         showLabels: ref.watch(dsoSettingsProvider.select((s) => s.showLabels)),
+        language: constellationSettings.language,
       ),
       StarRenderer(stars: stars, settings: settings, sprite: sprite),
       SolarSystemRenderer(bodies: solarBodies, moonPhase: moonPhase),
       if (minorBodies.isNotEmpty)
-        MinorBodyRenderer(bodies: minorBodies, sunPosition: sunPosition),
+        MinorBodyRenderer(
+          bodies: minorBodies,
+          sunPosition: sunPosition,
+          language: constellationSettings.language,
+        ),
       const GroundRenderer(),
       const HorizonRenderer(),
       if (fovFrame != null)

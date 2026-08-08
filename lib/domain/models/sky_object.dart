@@ -1,3 +1,4 @@
+import 'constellation_data.dart';
 import 'deep_sky_object.dart';
 import 'solar_system.dart';
 import 'star.dart';
@@ -10,7 +11,9 @@ import 'star.dart';
 sealed class SkyObject {
   const SkyObject();
 
-  String get displayName;
+  /// Display name in [language] (star and catalog names are
+  /// language-neutral and shared across languages)
+  String displayNameIn(NameLanguage language);
 
   /// Type label ('Star', 'Galaxy', 'Planet', etc.)
   String get typeLabel;
@@ -27,7 +30,7 @@ class StarObject extends SkyObject {
   final Star star;
 
   @override
-  String get displayName => star.displayName;
+  String displayNameIn(NameLanguage language) => star.displayName;
 
   @override
   String get typeLabel => 'Star';
@@ -45,7 +48,7 @@ class DsoObject extends SkyObject {
   final DeepSkyObject dso;
 
   @override
-  String get displayName => dso.displayName;
+  String displayNameIn(NameLanguage language) => dso.displayNameIn(language);
 
   @override
   String get typeLabel => dso.objectType.labelJa;
@@ -63,7 +66,7 @@ class SolarBodyObject extends SkyObject {
   final SolarBodyId body;
 
   @override
-  String get displayName => body.nameJa;
+  String displayNameIn(NameLanguage language) => body.nameIn(language);
 
   @override
   String get typeLabel => switch (body) {

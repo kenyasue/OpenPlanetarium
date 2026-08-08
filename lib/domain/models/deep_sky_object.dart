@@ -1,3 +1,5 @@
+import 'constellation_data.dart';
+
 /// Deep-sky object type (docs/glossary.md).
 enum ObjectType {
   galaxy('Galaxy'),
@@ -102,8 +104,18 @@ class DeepSkyObject {
     return id;
   }
 
-  /// Display name (Japanese name > common name > catalog designation)
-  String get displayName => nameJa ?? commonName ?? catalogLabel;
+  /// Common name in [language], or null when none exists for that language
+  /// (Japanese falls back to the English common name; English/Latin never
+  /// fall back to Japanese)
+  String? commonNameIn(NameLanguage language) => switch (language) {
+    NameLanguage.japanese => nameJa ?? commonName,
+    NameLanguage.english || NameLanguage.latin => commonName,
+  };
+
+  /// Display name in [language]. Objects without a name in that language
+  /// fall back to the language-neutral catalog designation ('M31' etc.)
+  String displayNameIn(NameLanguage language) =>
+      commonNameIn(language) ?? catalogLabel;
 
   static String _stripZeros(String s) {
     final trimmed = s.replaceFirst(RegExp(r'^0+'), '');

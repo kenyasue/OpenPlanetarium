@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:open_planetarium/application/search/search_service.dart';
 import 'package:open_planetarium/data/catalog/asset_constellation_repository.dart';
 import 'package:open_planetarium/data/catalog/asset_dso_repository.dart';
+import 'package:open_planetarium/domain/models/constellation_data.dart';
 import 'package:open_planetarium/domain/models/sky_object.dart';
 import 'package:open_planetarium/domain/models/solar_system.dart';
 import 'package:open_planetarium/domain/models/star.dart';
@@ -88,6 +89,46 @@ void main() {
     test('empty or whitespace-only query returns an empty list', () {
       expect(service.search(''), isEmpty);
       expect(service.search('   '), isEmpty);
+    });
+  });
+
+  group('SearchService (English label language)', () {
+    late SearchService english;
+
+    setUpAll(() {
+      english = SearchService(
+        namedStars: service.namedStars,
+        dsos: service.dsos,
+        constellations: service.constellations,
+        language: NameLanguage.english,
+      );
+    });
+
+    test('M31 label is the English common name, not Japanese', () {
+      final results = english.search('M31');
+      expect(results.single.label, 'Andromeda Galaxy');
+    });
+
+    test('a DSO without an English name falls back to its catalog label', () {
+      // M101 has only a Japanese name (回転花火銀河) in the bundled data
+      final results = english.search('M101');
+      expect(results.single.label, 'M101');
+    });
+
+    test('Japanese queries still hit, with English labels', () {
+      final results = english.search('すばる');
+      expect(results, isNotEmpty);
+      expect(results.first.label, 'Pleiades');
+    });
+
+    test('constellation labels use the English name', () {
+      final results = english.search('Orion');
+      expect(
+        results.any(
+          (r) => r.label == 'Orion' && r.sublabel.contains('Constellation'),
+        ),
+        isTrue,
+      );
     });
   });
 }

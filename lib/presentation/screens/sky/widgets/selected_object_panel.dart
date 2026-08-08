@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../application/location/location_controller.dart';
 import '../../../../application/selection/selected_object_provider.dart';
+import '../../../../application/settings/constellation_settings_controller.dart';
 import '../../../../application/time/time_controller.dart';
 import '../../../../domain/appearance/star_appearance.dart';
 import '../../../../domain/astro/astro_engine.dart';
@@ -37,6 +38,10 @@ class SelectedObjectPanel extends ConsumerWidget {
       DsoObject() => const Color(0xFFC9A9E8),
       SolarBodyObject() => const Color(0xFFF2E3BC),
     };
+    // Object names follow the shared name-language setting (F6/F9)
+    final displayName = object.displayNameIn(
+      ref.watch(constellationSettingsProvider.select((s) => s.language)),
+    );
 
     if (compact) {
       return Row(
@@ -46,8 +51,8 @@ class SelectedObjectPanel extends ConsumerWidget {
           const SizedBox(width: 6),
           Text(
             object.magnitude != null
-                ? '${object.displayName}  mag ${object.magnitude!.toStringAsFixed(1)}'
-                : object.displayName,
+                ? '$displayName  mag ${object.magnitude!.toStringAsFixed(1)}'
+                : displayName,
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(width: 4),
@@ -137,7 +142,7 @@ class SelectedObjectPanel extends ConsumerWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                object.displayName,
+                displayName,
                 style: theme.textTheme.titleMedium,
                 overflow: TextOverflow.ellipsis,
               ),

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/painting.dart';
 
+import '../../domain/models/constellation_data.dart';
 import '../../domain/models/deep_sky_object.dart';
 import '../../domain/models/sky_point.dart';
 import 'sky_layer_renderer.dart';
@@ -14,12 +15,19 @@ import 'sky_layer_renderer.dart';
 /// visibleDsosProvider; this class only handles zoom-linked labels and
 /// overlap decluttering.
 class DsoRenderer implements SkyLayerRenderer {
-  DsoRenderer({required this.dsos, this.showLabels = true});
+  DsoRenderer({
+    required this.dsos,
+    this.showLabels = true,
+    this.language = NameLanguage.japanese,
+  });
 
   final List<DeepSkyObject> dsos;
 
   /// Whether to show DSO name labels on the celestial sphere (DSO tab in celestial object settings)
   final bool showLabels;
+
+  /// Display language for object names (shared with constellation names)
+  final NameLanguage language;
 
   static const _typeColors = {
     ObjectType.galaxy: Color(0xFFC9A9E8),
@@ -32,11 +40,23 @@ class DsoRenderer implements SkyLayerRenderer {
     ObjectType.other: Color(0xFFB8C4D0),
   };
 
-  /// Label cache (id → TextPainter; bounded since the data is fixed at startup)
+  /// Label cache (id → TextPainter; bounded since the data is fixed at
+  /// startup). Cleared on language switch, mirroring ConstellationRenderer.
   static final Map<String, TextPainter> _labelCache = {};
+  static NameLanguage? _cacheLanguage;
+
+  static void _ensureCacheLanguage(NameLanguage language) {
+    if (_cacheLanguage == language) return;
+    for (final painter in _labelCache.values) {
+      painter.dispose();
+    }
+    _labelCache.clear();
+    _cacheLanguage = language;
+  }
 
   @override
   void render(Canvas canvas, SkyRenderContext context) {
+    _ensureCacheLanguage(language);
     final projection = context.projection;
     final state = context.state;
     final bounds = (Offset.zero & state.screenSize).inflate(40);
@@ -65,7 +85,7 @@ class DsoRenderer implements SkyLayerRenderer {
         final painter = _labelCache.putIfAbsent(dso.id, () {
           return TextPainter(
             text: TextSpan(
-              text: dso.displayName,
+              text: dso.displayNameIn(language),
               style: TextStyle(
                 color: color.withValues(alpha: 0.85),
                 fontSize: 11,

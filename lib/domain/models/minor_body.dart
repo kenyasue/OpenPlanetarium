@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'constellation_data.dart';
+
 /// Minor body kind (F7 extension).
 enum MinorBodyKind {
   asteroid('Asteroid'),
@@ -74,7 +76,12 @@ class MinorBody {
   /// Asteroid: unused (0) / Comet: magnitude slope K1
   final double mag2;
 
-  String get displayName => nameJa ?? name;
+  /// Display name in [language] (the catalog name '1 Ceres' etc. is the
+  /// language-neutral fallback)
+  String displayNameIn(NameLanguage language) => switch (language) {
+    NameLanguage.japanese => nameJa ?? name,
+    NameLanguage.english || NameLanguage.latin => name,
+  };
 
   /// Computes apparent magnitude from heliocentric distance r and geocentric distance Δ [au].
   ///
