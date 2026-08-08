@@ -3,16 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../application/fov/active_fov_controller.dart';
-import '../../../../application/location/location_controller.dart';
 import '../../../../application/sky/solar_system_provider.dart';
 import '../../../../application/sky/survey_providers.dart';
 import '../../../../application/time/time_controller.dart';
 import '../../../../application/viewport/viewport_controller.dart';
-import '../../../../domain/models/geo_location.dart';
+import '../../../widgets/app_dialog.dart';
 import '../../equipment/equipment_screen.dart';
 import '../../settings/widgets/location_section.dart';
 import 'celestial_settings_dialog.dart';
 import 'fov_control_section.dart';
+import 'time_settings_dialog.dart';
 
 /// Bottom control panel (F10/F13).
 ///
@@ -69,17 +69,6 @@ TextStyle? _barTextStyle(BuildContext context) => Theme.of(
   context,
 ).textTheme.bodySmall?.copyWith(color: Colors.white.withValues(alpha: 0.85));
 
-String _locationLabelOf(AsyncValue<LocationFix> locationAsync) =>
-    switch (locationAsync) {
-      AsyncData(:final value) => switch (value.source) {
-        LocationSource.gps => value.location.name ?? 'Current location',
-        LocationSource.manual => value.location.name ?? 'Manual',
-        LocationSource.fallback => '${value.location.name ?? "Default"} (default)',
-      },
-      AsyncError() => 'Location unknown',
-      _ => 'Acquiring…',
-    };
-
 class _BarDivider extends StatelessWidget {
   const _BarDivider();
 
@@ -130,7 +119,15 @@ class _TimeSliderRow extends ConsumerWidget {
       children: [
         const Icon(Icons.schedule, size: 16, color: Colors.white70),
         const SizedBox(width: 4),
-        Text(_format.format(local), style: textStyle),
+        // Clicking the time itself opens the calendar dialog (F10)
+        InkWell(
+          onTap: () => showTimeSettingsDialog(context),
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+            child: Text(_format.format(local), style: textStyle),
+          ),
+        ),
         if (expandSlider)
           Expanded(child: slider)
         else
@@ -194,7 +191,8 @@ class _SettingsIcons extends ConsumerWidget {
     final icons = <Widget>[
       _ControlIcon(
         icon: Icons.auto_awesome_outlined,
-        tooltip: 'Celestial Settings (DSO, Solar System, Survey, Stars, Constellations)',
+        tooltip:
+            'Celestial Settings (DSO, Solar System, Survey, Stars, Constellations)',
         // Highlight only while a survey is active (it is the only setting
         // involving network access and caching, so keep its ON state
         // visible at all times)
@@ -204,26 +202,24 @@ class _SettingsIcons extends ConsumerWidget {
       _ControlIcon(
         icon: Icons.edit_calendar_outlined,
         tooltip: 'Time Settings (date and time)',
-        onPressed: () => _showSettingDialog(
-          context,
-          'Time Settings',
-          const _TimeSettingsContent(),
-        ),
+        onPressed: () => showTimeSettingsDialog(context),
       ),
       _ControlIcon(
         icon: Icons.place_outlined,
         tooltip: 'Observing Location',
-        onPressed: () => _showSettingDialog(
+        onPressed: () => showAppSettingDialog(
           context,
           'Observing Location',
           const LocationSection(),
+          // Wide enough for the world map picker
+          width: 640,
         ),
       ),
       _ControlIcon(
         icon: Icons.crop_free,
         tooltip: 'FOV Simulator',
         active: fovActive,
-        onPressed: () => _showSettingDialog(
+        onPressed: () => showAppSettingDialog(
           context,
           'FOV Simulator',
           const FovControlSection(),
@@ -247,16 +243,14 @@ class _SettingsIcons extends ConsumerWidget {
   }
 }
 
-/// Status display (moon age, observing location, FOV angle)
+/// Status display (moon age and FOV angle; the observing location is shown
+/// only inside the location dialog — user instruction)
 class _StatusBlock extends ConsumerWidget {
   const _StatusBlock();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final moonPhase = ref.watch(moonPhaseProvider);
-    final locationLabel = _locationLabelOf(
-      ref.watch(locationControllerProvider),
-    );
     final fovDeg = ref.watch(
       viewportControllerProvider.select((g) => g.fovDeg),
     );
@@ -278,7 +272,6 @@ class _StatusBlock extends ConsumerWidget {
             ),
           ],
         ),
-        Text(locationLabel, style: textStyle),
         Text('FOV ${fovDeg.toStringAsFixed(1)}°', style: textStyle),
       ],
     );
@@ -308,125 +301,6 @@ class _ControlIcon extends StatelessWidget {
       tooltip: tooltip,
       onPressed: onPressed,
       icon: Icon(icon, size: 18, color: active ? accent : Colors.white70),
-    );
-  }
-}
-
-/// Shared settings dialog display (reuses existing section widgets as content)
-Future<void> _showSettingDialog(
-  BuildContext context,
-  String title,
-  Widget content,
-) {
-  return showDialog<void>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(title),
-      content: SizedBox(
-        width: 360,
-        child: SingleChildScrollView(child: content),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(),
-          child: const Text('Close'),
-        ),
-      ],
-    ),
-  );
-}
-
-/// Time settings (change date/time and reset)
-class _TimeSettingsContent extends ConsumerWidget {
-  const _TimeSettingsContent();
-
-  static final _dateFormat = DateFormat('yyyy-MM-dd');
-  static final _timeFormat = DateFormat('HH:mm');
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final local = ref.watch(timeControllerProvider).toLocal();
-    final theme = Theme.of(context);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'The sky display follows changes to the observation date and time.',
-          style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.calendar_today, size: 16),
-                label: Text(_dateFormat.format(local)),
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: local,
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) {
-                    ref.read(timePlaybackProvider.notifier).stop();
-                    ref
-                        .read(timeControllerProvider.notifier)
-                        .setTime(
-                          DateTime(
-                            picked.year,
-                            picked.month,
-                            picked.day,
-                            local.hour,
-                            local.minute,
-                            local.second,
-                          ),
-                        );
-                  }
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.access_time, size: 16),
-                label: Text(_timeFormat.format(local)),
-                onPressed: () async {
-                  final picked = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.fromDateTime(local),
-                  );
-                  if (picked != null) {
-                    ref.read(timePlaybackProvider.notifier).stop();
-                    ref
-                        .read(timeControllerProvider.notifier)
-                        .setTime(
-                          DateTime(
-                            local.year,
-                            local.month,
-                            local.day,
-                            picked.hour,
-                            picked.minute,
-                          ),
-                        );
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        TextButton.icon(
-          icon: const Icon(Icons.restore, size: 16),
-          label: const Text('Reset to Now'),
-          onPressed: () {
-            ref.read(timePlaybackProvider.notifier).stop();
-            ref.read(timeControllerProvider.notifier).resetToNow();
-          },
-        ),
-      ],
     );
   }
 }

@@ -44,18 +44,21 @@ void main() {
       expect(m45.nameJa, contains('すばる'));
     });
 
-    test('all coordinates are in the normalized range and sorted by brightness', () {
-      double? prevMag;
-      for (final dso in dsos) {
-        expect(dso.raDeg, inInclusiveRange(0, 360), reason: dso.id);
-        expect(dso.decDeg, inInclusiveRange(-90, 90), reason: dso.id);
-        final mag = dso.magnitude ?? 99.0;
-        if (prevMag != null) {
-          expect(mag, greaterThanOrEqualTo(prevMag), reason: dso.id);
+    test(
+      'all coordinates are in the normalized range and sorted by brightness',
+      () {
+        double? prevMag;
+        for (final dso in dsos) {
+          expect(dso.raDeg, inInclusiveRange(0, 360), reason: dso.id);
+          expect(dso.decDeg, inInclusiveRange(-90, 90), reason: dso.id);
+          final mag = dso.magnitude ?? 99.0;
+          if (prevMag != null) {
+            expect(mag, greaterThanOrEqualTo(prevMag), reason: dso.id);
+          }
+          prevMag = mag;
         }
-        prevMag = mag;
-      }
-    });
+      },
+    );
 
     test('extra catalogs (Sh2/LBN/LDN/vdB) are merged in', () {
       bool has(DsoCatalog c) => dsos.any((d) => d.catalogs.contains(c));

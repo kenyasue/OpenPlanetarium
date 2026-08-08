@@ -101,51 +101,57 @@ void main() {
       expect(frame.label, contains('Deep Sky'));
     });
 
-    test('a circular frame is derived from an eyepiece set plus Barlow', () async {
-      await container
-          .read(equipmentRepositoryProvider)
-          .saveEquipmentSet(
-            const EquipmentSet(
-              id: 's2',
-              name: 'Visual',
-              telescopeId: 't1',
-              eyepieceId: 'e1',
-              modifierId: 'm1',
-            ),
-          );
-      await loadAll();
-      container.read(activeFovProvider.notifier).setActiveSet('s2');
+    test(
+      'a circular frame is derived from an eyepiece set plus Barlow',
+      () async {
+        await container
+            .read(equipmentRepositoryProvider)
+            .saveEquipmentSet(
+              const EquipmentSet(
+                id: 's2',
+                name: 'Visual',
+                telescopeId: 't1',
+                eyepieceId: 'e1',
+                modifierId: 'm1',
+              ),
+            );
+        await loadAll();
+        container.read(activeFovProvider.notifier).setActiveSet('s2');
 
-      final frame = container.read(fovFrameProvider);
-      expect(frame, isNotNull);
-      expect(frame!.isCircle, isTrue);
-      // 400mm×2 / 25mm = 32x → true FOV 50/32 = 1.5625°
-      expect(frame.widthDeg, closeTo(1.5625, 0.016));
-    });
+        final frame = container.read(fovFrameProvider);
+        expect(frame, isNotNull);
+        expect(frame!.isCircle, isTrue);
+        // 400mm×2 / 25mm = 32x → true FOV 50/32 = 1.5625°
+        expect(frame.widthDeg, closeTo(1.5625, 0.016));
+      },
+    );
 
-    test('returns null when no set is selected or a reference is broken (telescope deleted)', () async {
-      await loadAll();
-      expect(container.read(fovFrameProvider), isNull);
+    test(
+      'returns null when no set is selected or a reference is broken (telescope deleted)',
+      () async {
+        await loadAll();
+        expect(container.read(fovFrameProvider), isNull);
 
-      // Deleting the telescope after selecting the set safely yields null
-      await container
-          .read(equipmentRepositoryProvider)
-          .saveEquipmentSet(
-            const EquipmentSet(
-              id: 's3',
-              name: 'Orphan',
-              telescopeId: 't1',
-              cameraId: 'c1',
-            ),
-          );
-      await loadAll();
-      container.read(activeFovProvider.notifier).setActiveSet('s3');
-      expect(container.read(fovFrameProvider), isNotNull);
+        // Deleting the telescope after selecting the set safely yields null
+        await container
+            .read(equipmentRepositoryProvider)
+            .saveEquipmentSet(
+              const EquipmentSet(
+                id: 's3',
+                name: 'Orphan',
+                telescopeId: 't1',
+                cameraId: 'c1',
+              ),
+            );
+        await loadAll();
+        container.read(activeFovProvider.notifier).setActiveSet('s3');
+        expect(container.read(fovFrameProvider), isNotNull);
 
-      await container.read(equipmentRepositoryProvider).deleteTelescope('t1');
-      container.invalidate(telescopesProvider);
-      await container.read(telescopesProvider.future);
-      expect(container.read(fovFrameProvider), isNull);
-    });
+        await container.read(equipmentRepositoryProvider).deleteTelescope('t1');
+        container.invalidate(telescopesProvider);
+        await container.read(telescopesProvider.future);
+        expect(container.read(fovFrameProvider), isNull);
+      },
+    );
   });
 }

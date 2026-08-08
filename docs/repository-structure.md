@@ -195,6 +195,7 @@ data/
 | Subdirectory | Contents | Format |
 |---|---|---|
 | `catalogs/` | Constellation lines, constellation boundaries, constellation names, Messier/major NGC object metadata | JSON / binary |
+| `map/` | World map land polygons and major cities for the observing-location picker (Natural Earth derived) | JSON |
 | `textures/` | Planet, Moon, and Sun textures | WebP |
 | `images/` | Major celestial object thumbnails, constellation art (P1) | WebP |
 | `fonts/` | UI fonts | TTF/OTF |

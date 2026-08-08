@@ -116,17 +116,22 @@ void main() {
   });
 
   group('DownloadController', () {
-    test('happy path: manifest → fetch all tiles → store in DB → status downloaded', () async {
-      final controller = container.read(downloadControllerProvider.notifier);
-      await controller.startDownload('test_catalog');
+    test(
+      'happy path: manifest → fetch all tiles → store in DB → status downloaded',
+      () async {
+        final controller = container.read(downloadControllerProvider.notifier);
+        await controller.startDownload('test_catalog');
 
-      final state = container.read(downloadControllerProvider)['test_catalog'];
-      expect(state?.status, DownloadStatus.downloaded);
-      expect(state?.completedTiles, 2);
+        final state = container.read(
+          downloadControllerProvider,
+        )['test_catalog'];
+        expect(state?.status, DownloadStatus.downloaded);
+        expect(state?.completedTiles, 2);
 
-      final store = container.read(catalogStoreProvider);
-      expect(await store.starsInTiles([0, 1], 10.0), hasLength(3));
-    });
+        final store = container.read(catalogStoreProvider);
+        expect(await store.starsInTiles([0, 1], 10.0), hasLength(3));
+      },
+    );
 
     test('resume: completed tiles are skipped', () async {
       final controller = container.read(downloadControllerProvider.notifier);
@@ -150,58 +155,75 @@ void main() {
       );
     });
 
-    test('SHA-256 mismatch triggers one re-fetch and succeeds with correct data', () async {
-      client.corruptOnce.add(1);
-      final controller = container.read(downloadControllerProvider.notifier);
-      await controller.startDownload('test_catalog');
+    test(
+      'SHA-256 mismatch triggers one re-fetch and succeeds with correct data',
+      () async {
+        client.corruptOnce.add(1);
+        final controller = container.read(downloadControllerProvider.notifier);
+        await controller.startDownload('test_catalog');
 
-      expect(
-        container.read(downloadControllerProvider)['test_catalog']?.status,
-        DownloadStatus.downloaded,
-      );
-      // tile 0 = 1 fetch; tile 1 = 1 corrupted + 1 re-fetch
-      expect(client.tileFetchCount, 3);
-    });
+        expect(
+          container.read(downloadControllerProvider)['test_catalog']?.status,
+          DownloadStatus.downloaded,
+        );
+        // tile 0 = 1 fetch; tile 1 = 1 corrupted + 1 re-fetch
+        expect(client.tileFetchCount, 3);
+      },
+    );
 
-    test('retryable failures are retried with exponential backoff and succeed', () async {
-      client.failuresRemaining[0] = 2; // fails twice, succeeds on the 3rd attempt
-      final controller = container.read(downloadControllerProvider.notifier);
-      await controller.startDownload('test_catalog');
-      expect(
-        container.read(downloadControllerProvider)['test_catalog']?.status,
-        DownloadStatus.downloaded,
-      );
-    });
+    test(
+      'retryable failures are retried with exponential backoff and succeed',
+      () async {
+        client.failuresRemaining[0] =
+            2; // fails twice, succeeds on the 3rd attempt
+        final controller = container.read(downloadControllerProvider.notifier);
+        await controller.startDownload('test_catalog');
+        expect(
+          container.read(downloadControllerProvider)['test_catalog']?.status,
+          DownloadStatus.downloaded,
+        );
+      },
+    );
 
-    test('exceeding the retry limit yields failed status without affecting the sky view', () async {
-      client.failuresRemaining[0] = 10;
-      final controller = container.read(downloadControllerProvider.notifier);
-      await controller.startDownload('test_catalog');
-      final state = container.read(downloadControllerProvider)['test_catalog'];
-      expect(state?.status, DownloadStatus.failed);
-      expect(state?.error, isNotNull);
-    });
+    test(
+      'exceeding the retry limit yields failed status without affecting the sky view',
+      () async {
+        client.failuresRemaining[0] = 10;
+        final controller = container.read(downloadControllerProvider.notifier);
+        await controller.startDownload('test_catalog');
+        final state = container.read(
+          downloadControllerProvider,
+        )['test_catalog'];
+        expect(state?.status, DownloadStatus.failed);
+        expect(state?.error, isNotNull);
+      },
+    );
 
-    test('cancelling mid-download stops while incomplete and can be resumed', () async {
-      final controller = container.read(downloadControllerProvider.notifier);
-      // Request cancellation on the first tile fetch
-      client.onFetchTile = (_) {
-        controller.cancel('test_catalog');
-        client.onFetchTile = null;
-      };
-      await controller.startDownload('test_catalog');
+    test(
+      'cancelling mid-download stops while incomplete and can be resumed',
+      () async {
+        final controller = container.read(downloadControllerProvider.notifier);
+        // Request cancellation on the first tile fetch
+        client.onFetchTile = (_) {
+          controller.cancel('test_catalog');
+          client.onFetchTile = null;
+        };
+        await controller.startDownload('test_catalog');
 
-      final state = container.read(downloadControllerProvider)['test_catalog'];
-      expect(state?.status, DownloadStatus.notDownloaded);
-      expect(state!.completedTiles, lessThan(2));
+        final state = container.read(
+          downloadControllerProvider,
+        )['test_catalog'];
+        expect(state?.status, DownloadStatus.notDownloaded);
+        expect(state!.completedTiles, lessThan(2));
 
-      // Resuming fetches only the remaining tiles and completes
-      await controller.startDownload('test_catalog');
-      expect(
-        container.read(downloadControllerProvider)['test_catalog']?.status,
-        DownloadStatus.downloaded,
-      );
-    });
+        // Resuming fetches only the remaining tiles and completes
+        await controller.startDownload('test_catalog');
+        expect(
+          container.read(downloadControllerProvider)['test_catalog']?.status,
+          DownloadStatus.downloaded,
+        );
+      },
+    );
 
     test('a second startDownload while downloading is ignored', () async {
       final controller = container.read(downloadControllerProvider.notifier);
@@ -221,75 +243,88 @@ void main() {
       );
     });
 
-    test('manifest with empty sha256 downloads without verification, and resume still skips', () async {
-      client.emptySha = true;
-      final controller = container.read(downloadControllerProvider.notifier);
-      await controller.startDownload('test_catalog');
-      expect(
-        container.read(downloadControllerProvider)['test_catalog']?.status,
-        DownloadStatus.downloaded,
-      );
-      final store = container.read(catalogStoreProvider);
-      expect(await store.starsInTiles([0, 1], 10.0), hasLength(3));
+    test(
+      'manifest with empty sha256 downloads without verification, and resume still skips',
+      () async {
+        client.emptySha = true;
+        final controller = container.read(downloadControllerProvider.notifier);
+        await controller.startDownload('test_catalog');
+        expect(
+          container.read(downloadControllerProvider)['test_catalog']?.status,
+          DownloadStatus.downloaded,
+        );
+        final store = container.read(catalogStoreProvider);
+        expect(await store.starsInTiles([0, 1], 10.0), hasLength(3));
 
-      // Re-downloading skips completed tiles (empty sha matches empty sha)
-      client.tileFetchCount = 0;
-      await controller.startDownload('test_catalog');
-      expect(client.tileFetchCount, 0);
-    });
+        // Re-downloading skips completed tiles (empty sha matches empty sha)
+        client.tileFetchCount = 0;
+        await controller.startDownload('test_catalog');
+        expect(client.tileFetchCount, 0);
+      },
+    );
 
-    test('Wi-Fi restriction: desktop can download regardless of connection type', () async {
-      final desktop = ProviderContainer(
-        overrides: [
-          appDatabaseProvider.overrideWith((ref) {
-            ref.onDispose(db.close);
-            return db;
-          }),
-          downloadClientProvider.overrideWithValue(client),
-          downloadSettingsProvider.overrideWith(_WifiOnlyDownloadSettings.new),
-          isMobilePlatformProvider.overrideWithValue(false),
-          // Passes even on non-Wi-Fi, non-wired connections (i.e. mobile data)
-          unmeteredConnectivityCheckerProvider.overrideWithValue(
-            () async => false,
-          ),
-        ],
-      );
-      addTearDown(desktop.dispose);
+    test(
+      'Wi-Fi restriction: desktop can download regardless of connection type',
+      () async {
+        final desktop = ProviderContainer(
+          overrides: [
+            appDatabaseProvider.overrideWith((ref) {
+              ref.onDispose(db.close);
+              return db;
+            }),
+            downloadClientProvider.overrideWithValue(client),
+            downloadSettingsProvider.overrideWith(
+              _WifiOnlyDownloadSettings.new,
+            ),
+            isMobilePlatformProvider.overrideWithValue(false),
+            // Passes even on non-Wi-Fi, non-wired connections (i.e. mobile data)
+            unmeteredConnectivityCheckerProvider.overrideWithValue(
+              () async => false,
+            ),
+          ],
+        );
+        addTearDown(desktop.dispose);
 
-      await desktop
-          .read(downloadControllerProvider.notifier)
-          .startDownload('test_catalog');
-      expect(
-        desktop.read(downloadControllerProvider)['test_catalog']?.status,
-        DownloadStatus.downloaded,
-      );
-    });
+        await desktop
+            .read(downloadControllerProvider.notifier)
+            .startDownload('test_catalog');
+        expect(
+          desktop.read(downloadControllerProvider)['test_catalog']?.status,
+          DownloadStatus.downloaded,
+        );
+      },
+    );
 
-    test('Wi-Fi restriction: mobile on a non-Wi-Fi connection ends up failed', () async {
-      final mobile = ProviderContainer(
-        overrides: [
-          appDatabaseProvider.overrideWith((ref) {
-            ref.onDispose(db.close);
-            return db;
-          }),
-          downloadClientProvider.overrideWithValue(client),
-          downloadSettingsProvider.overrideWith(_WifiOnlyDownloadSettings.new),
-          isMobilePlatformProvider.overrideWithValue(true),
-          unmeteredConnectivityCheckerProvider.overrideWithValue(
-            () async => false,
-          ),
-        ],
-      );
-      addTearDown(mobile.dispose);
+    test(
+      'Wi-Fi restriction: mobile on a non-Wi-Fi connection ends up failed',
+      () async {
+        final mobile = ProviderContainer(
+          overrides: [
+            appDatabaseProvider.overrideWith((ref) {
+              ref.onDispose(db.close);
+              return db;
+            }),
+            downloadClientProvider.overrideWithValue(client),
+            downloadSettingsProvider.overrideWith(
+              _WifiOnlyDownloadSettings.new,
+            ),
+            isMobilePlatformProvider.overrideWithValue(true),
+            unmeteredConnectivityCheckerProvider.overrideWithValue(
+              () async => false,
+            ),
+          ],
+        );
+        addTearDown(mobile.dispose);
 
-      await mobile
-          .read(downloadControllerProvider.notifier)
-          .startDownload('test_catalog');
-      final state = mobile.read(downloadControllerProvider)['test_catalog'];
-      expect(state?.status, DownloadStatus.failed);
-      expect(state?.error, contains('Wi-Fi'));
-      expect(client.tileFetchCount, 0); // never reaches tile fetching
-    });
+        await mobile
+            .read(downloadControllerProvider.notifier)
+            .startDownload('test_catalog');
+        final state = mobile.read(downloadControllerProvider)['test_catalog'];
+        expect(state?.status, DownloadStatus.failed);
+        expect(state?.error, contains('Wi-Fi'));
+        expect(client.tileFetchCount, 0); // never reaches tile fetching
+      },
+    );
 
     test('Wi-Fi restriction: mobile can download when on Wi-Fi', () async {
       final mobile = ProviderContainer(

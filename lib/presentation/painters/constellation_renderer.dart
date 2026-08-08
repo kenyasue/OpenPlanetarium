@@ -74,7 +74,8 @@ class ConstellationRenderer implements SkyLayerRenderer {
     if (settings.showNames && pxPerDeg > 4) {
       // At extremely wide views (all-sky display with 1° < 4px), labels are omitted for readability
       _ensureCacheLanguage(settings.language);
-      final declutter = context.labelDeclutter; // Shared with celestial object name labels
+      final declutter =
+          context.labelDeclutter; // Shared with celestial object name labels
       // Allow slightly off-screen positions so labels at screen edges are not cut off
       final screenRect = (Offset.zero & state.screenSize).inflate(48);
 

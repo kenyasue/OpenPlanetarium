@@ -8,7 +8,9 @@ const _uuid = Uuid();
 /// Shared validator for numeric fields (positive numbers only)
 String? _positiveNumber(String? value, String label) {
   final parsed = double.tryParse(value ?? '');
-  if (parsed == null || parsed <= 0) return 'Enter a positive number for $label';
+  if (parsed == null || parsed <= 0) {
+    return 'Enter a positive number for $label';
+  }
   return null;
 }
 
@@ -330,9 +332,8 @@ class _ModifierDialogState
   }
 
   @override
-  String get title => widget.existing == null
-      ? 'Add Barlow/Reducer'
-      : 'Edit Barlow/Reducer';
+  String get title =>
+      widget.existing == null ? 'Add Barlow/Reducer' : 'Edit Barlow/Reducer';
 
   @override
   List<Widget> buildFields(BuildContext context) => [

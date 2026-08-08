@@ -45,7 +45,8 @@ class GeolocatorLocationProvider implements DeviceLocationProvider {
     try {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: LocationSettings(
-          accuracy: LocationAccuracy.low, // Low accuracy is enough for sky chart use
+          accuracy:
+              LocationAccuracy.low, // Low accuracy is enough for sky chart use
           timeLimit: timeout,
         ),
       );

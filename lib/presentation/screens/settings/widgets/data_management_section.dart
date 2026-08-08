@@ -121,7 +121,9 @@ class _CatalogTile extends ConsumerWidget {
                 _ => TextButton(
                   onPressed: () => controller.startDownload(descriptor.id),
                   child: Text(
-                    state.status == DownloadStatus.failed ? 'Retry' : 'Download',
+                    state.status == DownloadStatus.failed
+                        ? 'Retry'
+                        : 'Download',
                   ),
                 ),
               },

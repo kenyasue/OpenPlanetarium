@@ -30,24 +30,27 @@ void main() {
   ];
 
   group('DriftCatalogStore', () {
-    test('importTile → starsInTiles retrieves with a magnitude filter', () async {
-      await store.importTile(
-        catalog: 'tycho2_m10',
-        tileIndex: 3,
-        sha256: 'abc',
-        stars: tileStars,
-      );
+    test(
+      'importTile → starsInTiles retrieves with a magnitude filter',
+      () async {
+        await store.importTile(
+          catalog: 'tycho2_m10',
+          tileIndex: 3,
+          sha256: 'abc',
+          stars: tileStars,
+        );
 
-      final all = await store.starsInTiles([3], 10.0);
-      expect(all, hasLength(2));
-      expect(all.first.colorIndexBV, isNull);
+        final all = await store.starsInTiles([3], 10.0);
+        expect(all, hasLength(2));
+        expect(all.first.colorIndexBV, isNull);
 
-      final bright = await store.starsInTiles([3], 8.0);
-      expect(bright.single.id, 1);
+        final bright = await store.starsInTiles([3], 8.0);
+        expect(bright.single.id, 1);
 
-      final otherTile = await store.starsInTiles([4], 10.0);
-      expect(otherTile, isEmpty);
-    });
+        final otherTile = await store.starsInTiles([4], 10.0);
+        expect(otherTile, isEmpty);
+      },
+    );
 
     test('re-importing the same tile replaces it (no duplicates)', () async {
       await store.importTile(

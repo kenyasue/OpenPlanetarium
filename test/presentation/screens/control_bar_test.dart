@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:open_planetarium/app.dart';
 import 'package:open_planetarium/application/location/location_controller.dart';
+import 'package:open_planetarium/application/location/world_cities_provider.dart';
 import 'package:open_planetarium/application/settings/appearance_settings_controller.dart';
 import 'package:open_planetarium/application/settings/dso_settings_controller.dart';
 import 'package:open_planetarium/application/settings/settings_persistence.dart';
 import 'package:open_planetarium/application/settings/solar_system_settings_controller.dart';
+import 'package:open_planetarium/data/catalog/world_map_loader.dart';
 import 'package:open_planetarium/data/platform/location_provider.dart';
 import 'package:open_planetarium/data/settings/prefs_settings_repository.dart';
 import 'package:open_planetarium/domain/exceptions.dart';
@@ -28,6 +30,17 @@ Widget _app() {
       ),
       settingsRepositoryProvider.overrideWithValue(
         InMemorySettingsRepository(),
+      ),
+      // Synchronous fake world-map assets: real rootBundle futures do not
+      // complete inside the fake-async test zone, which would leave the
+      // location dialog's loading spinner animating forever (pumpAndSettle
+      // would time out)
+      worldMapLoaderProvider.overrideWithValue(
+        WorldMapLoader(
+          loader: (key) async => key.endsWith('world_cities.json')
+              ? '[["Tokyo","Japan",35.69,139.69,1]]'
+              : '[[[0,0],[10,0],[10,10]]]',
+        ),
       ),
     ],
     child: const PlanetariumApp(),
@@ -224,7 +237,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('time settings dialog opens with date and time buttons', (
+  testWidgets('time settings dialog opens with calendar and time dropdowns', (
     tester,
   ) async {
     await pumpDesktop(tester);
@@ -232,9 +245,33 @@ void main() {
     await tester.tap(find.byIcon(Icons.edit_calendar_outlined));
     await tester.pumpAndSettle();
     expect(find.text('Time Settings'), findsOneWidget);
-    expect(find.byIcon(Icons.calendar_today), findsOneWidget);
+    expect(find.byType(CalendarDatePicker), findsOneWidget);
     expect(find.byIcon(Icons.access_time), findsOneWidget);
-    expect(find.text('Reset to Now'), findsOneWidget);
+    expect(find.text('Now'), findsWidgets);
+
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('clicking the time text opens the time settings dialog', (
+    tester,
+  ) async {
+    await pumpDesktop(tester);
+
+    // The clock readout in the control bar is tappable
+    await tester.tap(find.byIcon(Icons.schedule));
+    await tester.pumpAndSettle();
+    expect(find.text('Time Settings'), findsNothing);
+
+    final timeText = find.descendant(
+      of: find.byType(InkWell),
+      matching: find.textContaining(RegExp(r'^\d{2}-\d{2} \d{2}:\d{2}:\d{2}$')),
+    );
+    await tester.tap(timeText.first);
+    await tester.pumpAndSettle();
+    expect(find.text('Time Settings'), findsOneWidget);
+    expect(find.byType(CalendarDatePicker), findsOneWidget);
 
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();

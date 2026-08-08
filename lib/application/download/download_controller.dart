@@ -82,8 +82,7 @@ class DownloadController extends Notifier<Map<String, CatalogDownloadState>> {
           catalogId,
           const CatalogDownloadState(
             status: DownloadStatus.failed,
-            error:
-                'Downloads are set to Wi-Fi only. Please connect to Wi-Fi.',
+            error: 'Downloads are set to Wi-Fi only. Please connect to Wi-Fi.',
           ),
         );
         return;

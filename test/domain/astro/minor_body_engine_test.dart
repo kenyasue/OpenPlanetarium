@@ -35,33 +35,43 @@ void main() {
       expect(actual.deltaAu, inInclusiveRange(0.4, 2.6));
     });
 
-    test('stays close to Mars position 60 days after epoch via mean-motion propagation (two-body limit)', () {
-      final utc = DateTime.utc(2000, 3, 1, 12);
-      final expected = engine.position(SolarBodyId.mars, utc);
-      final actual = engine.minorBodyGeocentric(marsAsOrbit, utc);
-      // Not an exact match since Standish secular terms are excluded (display-grade accuracy)
-      expect(actual.position.angularDistanceTo(expected), lessThan(0.5));
-    });
+    test(
+      'stays close to Mars position 60 days after epoch via mean-motion propagation (two-body limit)',
+      () {
+        final utc = DateTime.utc(2000, 3, 1, 12);
+        final expected = engine.position(SolarBodyId.mars, utc);
+        final actual = engine.minorBodyGeocentric(marsAsOrbit, utc);
+        // Not an exact match since Standish secular terms are excluded (display-grade accuracy)
+        expect(actual.position.angularDistanceTo(expected), lessThan(0.5));
+      },
+    );
 
-    test('Kepler equation converges even for high-eccentricity orbit (e=0.97)', () {
-      const halleyLike = OrbitalElements(
-        epochJd: 2451545.0,
-        aAu: 17.8,
-        e: 0.967,
-        iDeg: 162.2,
-        nodeDeg: 58.4,
-        argPeriDeg: 111.3,
-        meanAnomalyDeg: 0.5, // just past perihelion (hardest region for convergence)
-      );
-      final result = engine.minorBodyGeocentric(
-        halleyLike,
-        DateTime.utc(2000, 1, 1, 12),
-      );
-      expect(result.rAu, greaterThan(0.5)); // at least perihelion distance q≈0.59 au
-      expect(result.rAu, lessThan(36)); // at most aphelion distance
-      expect(result.position.raDeg, inInclusiveRange(0, 360));
-      expect(result.position.decDeg, inInclusiveRange(-90, 90));
-    });
+    test(
+      'Kepler equation converges even for high-eccentricity orbit (e=0.97)',
+      () {
+        const halleyLike = OrbitalElements(
+          epochJd: 2451545.0,
+          aAu: 17.8,
+          e: 0.967,
+          iDeg: 162.2,
+          nodeDeg: 58.4,
+          argPeriDeg: 111.3,
+          meanAnomalyDeg:
+              0.5, // just past perihelion (hardest region for convergence)
+        );
+        final result = engine.minorBodyGeocentric(
+          halleyLike,
+          DateTime.utc(2000, 1, 1, 12),
+        );
+        expect(
+          result.rAu,
+          greaterThan(0.5),
+        ); // at least perihelion distance q≈0.59 au
+        expect(result.rAu, lessThan(36)); // at most aphelion distance
+        expect(result.position.raDeg, inInclusiveRange(0, 360));
+        expect(result.position.decDeg, inInclusiveRange(-90, 90));
+      },
+    );
   });
 
   group('MinorBody.magnitudeAt', () {

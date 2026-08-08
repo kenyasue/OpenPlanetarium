@@ -39,9 +39,13 @@ class AssetDsoRepository implements DsoRepository {
       );
       return objects;
     } on FormatException catch (e) {
-      throw CatalogCorruptedException('Invalid celestial object data format: $e');
+      throw CatalogCorruptedException(
+        'Invalid celestial object data format: $e',
+      );
     } on TypeError catch (e) {
-      throw CatalogCorruptedException('Invalid celestial object data format: $e');
+      throw CatalogCorruptedException(
+        'Invalid celestial object data format: $e',
+      );
     }
   }
 

@@ -135,7 +135,10 @@ class _DsoTab extends ConsumerWidget {
         SwitchListTile(
           dense: true,
           contentPadding: EdgeInsets.zero,
-          title: Text('Show object name labels', style: theme.textTheme.bodyMedium),
+          title: Text(
+            'Show object name labels',
+            style: theme.textTheme.bodyMedium,
+          ),
           subtitle: Text(
             'Brighter objects are labeled first as you zoom (overlaps are culled automatically)',
             style: theme.textTheme.bodySmall?.copyWith(color: Colors.white54),

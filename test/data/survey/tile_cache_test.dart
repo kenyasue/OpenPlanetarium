@@ -81,15 +81,18 @@ void main() {
       expect(await cache2.get('dss/3/100'), bytes(10, 7));
     });
 
-    test('entries whose backing file disappeared are removed during reconciliation', () async {
-      final cache1 = DiskTileCache(rootDir: tempDir, limitBytes: 1000);
-      await cache1.put('dss/3/100', bytes(10, 7));
-      // Delete only the backing file
-      File('${tempDir.path}/dss_3_100.bin').deleteSync();
+    test(
+      'entries whose backing file disappeared are removed during reconciliation',
+      () async {
+        final cache1 = DiskTileCache(rootDir: tempDir, limitBytes: 1000);
+        await cache1.put('dss/3/100', bytes(10, 7));
+        // Delete only the backing file
+        File('${tempDir.path}/dss_3_100.bin').deleteSync();
 
-      final cache2 = DiskTileCache(rootDir: tempDir, limitBytes: 1000);
-      expect(await cache2.get('dss/3/100'), isNull);
-    });
+        final cache2 = DiskTileCache(rootDir: tempDir, limitBytes: 1000);
+        expect(await cache2.get('dss/3/100'), isNull);
+      },
+    );
 
     test('LRU updates from get are preserved across a restart', () async {
       final cache1 = DiskTileCache(
@@ -100,12 +103,18 @@ void main() {
       await cache1.put('a', bytes(10, 1));
       await cache1.put('b', bytes(10, 2));
       await cache1.get('a'); // mark a as recently used
-      await Future<void>.delayed(const Duration(milliseconds: 20)); // wait for persistence
+      await Future<void>.delayed(
+        const Duration(milliseconds: 20),
+      ); // wait for persistence
 
       // Simulated restart: a new instance with a tighter limit evicts b first
       final cache2 = DiskTileCache(rootDir: tempDir, limitBytes: 15);
       await cache2.put('c', bytes(5, 3));
-      expect(await cache2.get('b'), isNull, reason: 'b, accessed longest ago, is evicted');
+      expect(
+        await cache2.get('b'),
+        isNull,
+        reason: 'b, accessed longest ago, is evicted',
+      );
       expect(await cache2.get('a'), isNotNull);
     });
 

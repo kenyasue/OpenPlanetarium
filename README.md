@@ -23,6 +23,8 @@ For other platforms, build from source — see the [Platform Guides](#platform-g
 - **Search**: Object names (Japanese/English), constellation names, M/NGC/IC numbers, planet names
 - **Object details**: Magnitude, coordinates, altitude/azimuth, rise/transit/set times
 - **Observation support**: Time slider, diurnal motion playback (60x/600x/3600x), light pollution level setting
+- **Time settings**: Click the clock readout to open a calendar dialog for quick date/time changes; the slider covers the 24 hours of the selected date
+- **Observing location**: Zoomable world map with 1,250+ major cities (capitals highlighted) — tap the map or pick a country/city to set the location; manual lat/lon entry and GPS remain available
 - **Survey layers**: Overlays DSS (Colored/Blue/Red/NIR) HiPS tiles on the star chart. Tiles are LRU-cached and can be redisplayed offline
 - **Equipment & field-of-view simulator**: Register telescopes, cameras, eyepieces, and Barlows/reducers to display FOV frames (rotatable), fit checks, and mosaic imaging plans
 - **Milky Way**: Procedural rendering along the galactic plane
@@ -162,6 +164,7 @@ Work-unit plans and retrospectives are kept as history in `.steering/`.
 - Constellation lines: Stellarium modern sky culture / IAU boundaries: Delporte (1930)
 - Deep-sky objects: [OpenNGC](https://github.com/mattiaverga/OpenNGC) (CC BY-SA 4.0)
 - Survey imagery: DSS2 (CDS/Aladin HiPS, STScI/NASA)
+- World map & cities: [Natural Earth](https://www.naturalearthdata.com/) 110m land / 50m populated places (public domain)
 
 ## License
 

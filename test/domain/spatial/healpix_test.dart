@@ -26,36 +26,43 @@ void main() {
   });
 
   group('Healpix.pixCenter / pixBoundary (round-trip consistency)', () {
-    test('tile centers map back to their own tile (samples for orders 0-6)', () {
-      for (var order = 0; order <= 6; order++) {
-        final total = Healpix.npix(order);
-        // Too many tiles at high orders, so verify a thinned-out subset
-        final step = (total / 48).ceil();
-        for (var pix = 0; pix < total; pix += step) {
-          final center = Healpix.pixCenter(order, pix);
-          expect(
-            Healpix.ang2pixNest(order, center.raDeg, center.decDeg),
-            pix,
-            reason: 'order=$order pix=$pix center=$center',
-          );
+    test(
+      'tile centers map back to their own tile (samples for orders 0-6)',
+      () {
+        for (var order = 0; order <= 6; order++) {
+          final total = Healpix.npix(order);
+          // Too many tiles at high orders, so verify a thinned-out subset
+          final step = (total / 48).ceil();
+          for (var pix = 0; pix < total; pix += step) {
+            final center = Healpix.pixCenter(order, pix);
+            expect(
+              Healpix.ang2pixNest(order, center.raDeg, center.decDeg),
+              pix,
+              reason: 'order=$order pix=$pix center=$center',
+            );
+          }
         }
-      }
-    });
+      },
+    );
 
-    test('boundary points lie within a reasonable angular distance of the tile center', () {
-      const order = 4;
-      final tileRadiusDeg = 58.6 / (1 << order) * 1.5; // conservative upper bound
-      for (var pix = 0; pix < Healpix.npix(order); pix += 37) {
-        final center = Healpix.pixCenter(order, pix);
-        for (final corner in Healpix.pixBoundary(order, pix)) {
-          expect(
-            center.angularDistanceTo(corner),
-            lessThan(tileRadiusDeg),
-            reason: 'order=$order pix=$pix',
-          );
+    test(
+      'boundary points lie within a reasonable angular distance of the tile center',
+      () {
+        const order = 4;
+        final tileRadiusDeg =
+            58.6 / (1 << order) * 1.5; // conservative upper bound
+        for (var pix = 0; pix < Healpix.npix(order); pix += 37) {
+          final center = Healpix.pixCenter(order, pix);
+          for (final corner in Healpix.pixBoundary(order, pix)) {
+            expect(
+              center.angularDistanceTo(corner),
+              lessThan(tileRadiusDeg),
+              reason: 'order=$order pix=$pix',
+            );
+          }
         }
-      }
-    });
+      },
+    );
 
     test('boundary point count is steps×4', () {
       expect(Healpix.pixBoundary(2, 5), hasLength(4));

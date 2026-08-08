@@ -37,7 +37,9 @@ class DesktopLayout extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () => SettingsScreen.open(context),
                   icon: const Icon(Icons.settings, size: 16),
-                  label: const Text('Settings (constellations, data management, etc.)'),
+                  label: const Text(
+                    'Settings (constellations, data management, etc.)',
+                  ),
                 ),
               ],
             ),

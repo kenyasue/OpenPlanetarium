@@ -80,19 +80,22 @@ void main() {
   });
 
   group('fade tied to display limiting magnitude', () {
-    test('raising the limiting magnitude moves the fade onset to fainter magnitudes', () {
-      // Default (mag 6.5): a mag 6.0 star is fading
-      const def = AppearanceSettings();
-      expect(StarAppearance.renderParams(6.0, def).opacity, lessThan(1.0));
+    test(
+      'raising the limiting magnitude moves the fade onset to fainter magnitudes',
+      () {
+        // Default (mag 6.5): a mag 6.0 star is fading
+        const def = AppearanceSettings();
+        expect(StarAppearance.renderParams(6.0, def).opacity, lessThan(1.0));
 
-      // Display down to mag 12: fade starts at mag 10.5, so mag 6.0 is full brightness
-      const deep = AppearanceSettings(userLimitingMagnitude: 12.0);
-      expect(StarAppearance.renderParams(6.0, deep).opacity, 1.0);
-      expect(StarAppearance.renderParams(11.5, deep).opacity, lessThan(1.0));
-      expect(
-        StarAppearance.renderParams(11.5, deep).opacity,
-        greaterThanOrEqualTo(0.15),
-      );
-    });
+        // Display down to mag 12: fade starts at mag 10.5, so mag 6.0 is full brightness
+        const deep = AppearanceSettings(userLimitingMagnitude: 12.0);
+        expect(StarAppearance.renderParams(6.0, deep).opacity, 1.0);
+        expect(StarAppearance.renderParams(11.5, deep).opacity, lessThan(1.0));
+        expect(
+          StarAppearance.renderParams(11.5, deep).opacity,
+          greaterThanOrEqualTo(0.15),
+        );
+      },
+    );
   });
 }

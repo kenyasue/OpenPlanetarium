@@ -86,21 +86,30 @@ void main() {
   }
 
   group('visibleMinorBodiesProvider', () {
-    test('returns only minor bodies within the limiting magnitude, with position and magnitude', () async {
-      final container = makeContainer();
-      await container.read(minorBodyListProvider.future);
+    test(
+      'returns only minor bodies within the limiting magnitude, with position and magnitude',
+      () async {
+        final container = makeContainer();
+        await container.read(minorBodyListProvider.future);
 
-      final visible = container.read(visibleMinorBodiesProvider);
-      final ids = visible.map((v) => v.body.id).toSet();
-      expect(ids, contains('ceres'));
-      expect(ids, contains('comet'));
-      expect(ids, isNot(contains('faint'))); // fainter than mag 12 is excluded
+        final visible = container.read(visibleMinorBodiesProvider);
+        final ids = visible.map((v) => v.body.id).toSet();
+        expect(ids, contains('ceres'));
+        expect(ids, contains('comet'));
+        expect(
+          ids,
+          isNot(contains('faint')),
+        ); // fainter than mag 12 is excluded
 
-      final ceres = visible.firstWhere((v) => v.body.id == 'ceres');
-      expect(ceres.position.raDeg, inInclusiveRange(0, 360));
-      expect(ceres.position.decDeg, inInclusiveRange(-90, 90));
-      expect(ceres.magnitude, inInclusiveRange(5.0, 12.0)); // typical range for Ceres
-    });
+        final ceres = visible.firstWhere((v) => v.body.id == 'ceres');
+        expect(ceres.position.raDeg, inInclusiveRange(0, 360));
+        expect(ceres.position.decDeg, inInclusiveRange(-90, 90));
+        expect(
+          ceres.magnitude,
+          inInclusiveRange(5.0, 12.0),
+        ); // typical range for Ceres
+      },
+    );
 
     test('asteroid and comet toggles work independently', () async {
       final container = makeContainer();

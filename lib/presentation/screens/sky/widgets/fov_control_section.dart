@@ -111,9 +111,11 @@ class FovControlSection extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(switch (fit) {
-                FitResult.fits => 'Selected object fits within the field of view',
+                FitResult.fits =>
+                  'Selected object fits within the field of view',
                 FitResult.tight => 'Barely fits (watch your framing)',
-                FitResult.overflow => 'Does not fit. Mosaic imaging recommended',
+                FitResult.overflow =>
+                  'Does not fit. Mosaic imaging recommended',
               }, style: theme.textTheme.bodySmall),
             ),
         ],

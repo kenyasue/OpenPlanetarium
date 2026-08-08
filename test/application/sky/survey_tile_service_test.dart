@@ -76,13 +76,16 @@ void main() {
   }
 
   group('SurveyTileService', () {
-    test('first call returns null; after fetch completes onTileReady fires and the image is returned', () async {
-      expect(service.imageFor(survey, ref0), isNull);
-      await pump();
-      expect(readyCount, 1);
-      expect(service.imageFor(survey, ref0), isA<ui.Image>());
-      expect(fetcher.fetchCount, 1);
-    });
+    test(
+      'first call returns null; after fetch completes onTileReady fires and the image is returned',
+      () async {
+        expect(service.imageFor(survey, ref0), isNull);
+        await pump();
+        expect(readyCount, 1);
+        expect(service.imageFor(survey, ref0), isA<ui.Image>());
+        expect(fetcher.fetchCount, 1);
+      },
+    );
 
     test('a disk cache hit does not go to the network', () async {
       service.imageFor(survey, ref0);
@@ -103,17 +106,20 @@ void main() {
       expect(fetcher.fetchCount, 0); // loaded from disk
     });
 
-    test('fetch failures are negatively cached and not retried immediately', () async {
-      fetcher.fail = true;
-      service.imageFor(survey, ref0);
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      expect(fetcher.fetchCount, 1);
+    test(
+      'fetch failures are negatively cached and not retried immediately',
+      () async {
+        fetcher.fail = true;
+        service.imageFor(survey, ref0);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        expect(fetcher.fetchCount, 1);
 
-      // An immediate re-request does not re-fetch
-      service.imageFor(survey, ref0);
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      expect(fetcher.fetchCount, 1);
-    });
+        // An immediate re-request does not re-fetch
+        service.imageFor(survey, ref0);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        expect(fetcher.fetchCount, 1);
+      },
+    );
   });
 
   group('tilesForViewport (indirect verification)', () {

@@ -34,36 +34,56 @@ void main() {
       expect(screen.dy, closeTo(360, 1e-6));
     });
 
-    test('a point at the top edge of the screen is half the FOV (fov/2) from the center', () {
-      final state = _state(fovDeg: 60);
-      final proj = ViewProjection(state);
-      final centerSky = proj.unproject(const Offset(640, 360));
-      final topSky = proj.unproject(const Offset(640, 0));
-      expect(centerSky.angularDistanceTo(topSky), closeTo(30.0, 0.01));
-    });
+    test(
+      'a point at the top edge of the screen is half the FOV (fov/2) from the center',
+      () {
+        final state = _state(fovDeg: 60);
+        final proj = ViewProjection(state);
+        final centerSky = proj.unproject(const Offset(640, 360));
+        final topSky = proj.unproject(const Offset(640, 0));
+        expect(centerSky.angularDistanceTo(topSky), closeTo(30.0, 0.01));
+      },
+    );
 
-    test('points opposite the view center (angular distance >140°) return null', () {
-      final state = _state();
-      final proj = ViewProjection(state);
-      final antipode = SkyPoint(state.center.raDeg + 180, -state.center.decDeg);
-      expect(proj.project(antipode), isNull);
-    });
+    test(
+      'points opposite the view center (angular distance >140°) return null',
+      () {
+        final state = _state();
+        final proj = ViewProjection(state);
+        final antipode = SkyPoint(
+          state.center.raDeg + 180,
+          -state.center.decDeg,
+        );
+        expect(proj.project(antipode), isNull);
+      },
+    );
   });
 
   group('ViewProjection.unproject (round-trip consistency)', () {
-    test('unproject then project returns the original screen coordinates (on-screen samples)', () {
-      final state = _state();
-      final proj = ViewProjection(state);
-      for (var dx = 100.0; dx < 1280; dx += 300) {
-        for (var dy = 80.0; dy < 720; dy += 200) {
-          final radec = proj.unproject(Offset(dx, dy));
-          final screen = proj.project(radec);
-          expect(screen, isNotNull, reason: '($dx,$dy) failed to project');
-          expect(screen!.dx, closeTo(dx, 0.01), reason: 'dx mismatch ($dx,$dy)');
-          expect(screen.dy, closeTo(dy, 0.01), reason: 'dy mismatch ($dx,$dy)');
+    test(
+      'unproject then project returns the original screen coordinates (on-screen samples)',
+      () {
+        final state = _state();
+        final proj = ViewProjection(state);
+        for (var dx = 100.0; dx < 1280; dx += 300) {
+          for (var dy = 80.0; dy < 720; dy += 200) {
+            final radec = proj.unproject(Offset(dx, dy));
+            final screen = proj.project(radec);
+            expect(screen, isNotNull, reason: '($dx,$dy) failed to project');
+            expect(
+              screen!.dx,
+              closeTo(dx, 0.01),
+              reason: 'dx mismatch ($dx,$dy)',
+            );
+            expect(
+              screen.dy,
+              closeTo(dy, 0.01),
+              reason: 'dy mismatch ($dx,$dy)',
+            );
+          }
         }
-      }
-    });
+      },
+    );
 
     test('round-trip still matches at high zoom (fov=1°)', () {
       final state = _state(fovDeg: 1.0);
@@ -83,20 +103,26 @@ void main() {
   });
 
   group('ViewProjection.projectHorizontal', () {
-    test('passing the horizontal coordinates of the view center projects to the screen center', () {
-      const d2r = math.pi / 180.0;
-      const engine = AstroEngine();
-      final state = _state();
-      final proj = ViewProjection(state);
-      final hor = engine.equatorialToHorizontal(
-        state.center,
-        state.location,
-        state.observationTime,
-      );
-      final screen = proj.projectHorizontal(hor.altDeg * d2r, hor.azDeg * d2r);
-      expect(screen, isNotNull);
-      expect(screen!.dx, closeTo(640, 1e-6));
-      expect(screen.dy, closeTo(360, 1e-6));
-    });
+    test(
+      'passing the horizontal coordinates of the view center projects to the screen center',
+      () {
+        const d2r = math.pi / 180.0;
+        const engine = AstroEngine();
+        final state = _state();
+        final proj = ViewProjection(state);
+        final hor = engine.equatorialToHorizontal(
+          state.center,
+          state.location,
+          state.observationTime,
+        );
+        final screen = proj.projectHorizontal(
+          hor.altDeg * d2r,
+          hor.azDeg * d2r,
+        );
+        expect(screen, isNotNull);
+        expect(screen!.dx, closeTo(640, 1e-6));
+        expect(screen.dy, closeTo(360, 1e-6));
+      },
+    );
   });
 }

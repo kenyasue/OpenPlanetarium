@@ -65,7 +65,9 @@ class _EquipmentLink extends StatelessWidget {
         OutlinedButton.icon(
           onPressed: () => EquipmentScreen.open(context),
           icon: const Icon(Icons.build_outlined, size: 16),
-          label: const Text('Equipment (telescopes, cameras, eyepieces, equipment sets)'),
+          label: const Text(
+            'Equipment (telescopes, cameras, eyepieces, equipment sets)',
+          ),
         ),
       ],
     );

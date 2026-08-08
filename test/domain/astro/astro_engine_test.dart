@@ -40,12 +40,15 @@ void main() {
       );
     });
 
-    test('returns to nearly the same GMST after 23h 56m 4s (one sidereal day)', () {
-      final t0 = DateTime.utc(2026, 6, 11);
-      final t1 = t0.add(const Duration(hours: 23, minutes: 56, seconds: 4));
-      final diff = (engine.gmstDeg(t1) - engine.gmstDeg(t0)).abs();
-      expect(diff < 0.01 || diff > 359.99, isTrue);
-    });
+    test(
+      'returns to nearly the same GMST after 23h 56m 4s (one sidereal day)',
+      () {
+        final t0 = DateTime.utc(2026, 6, 11);
+        final t1 = t0.add(const Duration(hours: 23, minutes: 56, seconds: 4));
+        final diff = (engine.gmstDeg(t1) - engine.gmstDeg(t0)).abs();
+        expect(diff < 0.01 || diff > 359.99, isTrue);
+      },
+    );
   });
 
   group('lstDeg', () {
@@ -63,35 +66,44 @@ void main() {
   });
 
   group('equatorialToHorizontal', () {
-    test('Meeus example 13.b: Venus altitude/azimuth match within tolerance', () {
-      final result = engine.equatorialToHorizontal(
-        MeeusFixtures.venusApparent,
-        MeeusFixtures.usno,
-        MeeusFixtures.example12bUtc,
-      );
-      expect(
-        result.altDeg,
-        closeTo(MeeusFixtures.venusExpectedAltDeg, MeeusFixtures.toleranceDeg),
-      );
-      expect(
-        result.azDeg,
-        closeTo(
-          MeeusFixtures.venusExpectedAzNorthDeg,
-          MeeusFixtures.toleranceDeg,
-        ),
-      );
-    });
+    test(
+      'Meeus example 13.b: Venus altitude/azimuth match within tolerance',
+      () {
+        final result = engine.equatorialToHorizontal(
+          MeeusFixtures.venusApparent,
+          MeeusFixtures.usno,
+          MeeusFixtures.example12bUtc,
+        );
+        expect(
+          result.altDeg,
+          closeTo(
+            MeeusFixtures.venusExpectedAltDeg,
+            MeeusFixtures.toleranceDeg,
+          ),
+        );
+        expect(
+          result.azDeg,
+          closeTo(
+            MeeusFixtures.venusExpectedAzNorthDeg,
+            MeeusFixtures.toleranceDeg,
+          ),
+        );
+      },
+    );
 
-    test('altitude of the north celestial pole (dec=+90°) equals the observer latitude', () {
-      const loc = GeoLocation.tokyo;
-      final result = engine.equatorialToHorizontal(
-        SkyPoint(0, 90),
-        loc,
-        DateTime.utc(2026, 6, 11, 12),
-      );
-      expect(result.altDeg, closeTo(loc.latitudeDeg, 1e-6));
-      expect(result.azDeg, closeTo(0.0, 0.5)); // nearly due north
-    });
+    test(
+      'altitude of the north celestial pole (dec=+90°) equals the observer latitude',
+      () {
+        const loc = GeoLocation.tokyo;
+        final result = engine.equatorialToHorizontal(
+          SkyPoint(0, 90),
+          loc,
+          DateTime.utc(2026, 6, 11, 12),
+        );
+        expect(result.altDeg, closeTo(loc.latitudeDeg, 1e-6));
+        expect(result.azDeg, closeTo(0.0, 0.5)); // nearly due north
+      },
+    );
 
     test('an object at transit (hour angle 0) is due south (az=180°)', () {
       const loc = GeoLocation.tokyo;
@@ -105,22 +117,29 @@ void main() {
   });
 
   group('horizontalToEquatorial (round-trip consistency)', () {
-    test('equatorial→horizontal→equatorial round trip returns the original coordinates (all-sky samples)', () {
-      const loc = GeoLocation.tokyo;
-      final utc = DateTime.utc(2026, 6, 11, 14, 30);
-      for (var ra = 0.0; ra < 360.0; ra += 30.0) {
-        for (var dec = -85.0; dec <= 85.0; dec += 17.0) {
-          final original = SkyPoint(ra, dec);
-          final horizontal = engine.equatorialToHorizontal(original, loc, utc);
-          final back = engine.horizontalToEquatorial(horizontal, loc, utc);
-          expect(
-            back.angularDistanceTo(original),
-            lessThan(1e-6),
-            reason: 'round-trip mismatch at ra=$ra dec=$dec',
-          );
+    test(
+      'equatorial→horizontal→equatorial round trip returns the original coordinates (all-sky samples)',
+      () {
+        const loc = GeoLocation.tokyo;
+        final utc = DateTime.utc(2026, 6, 11, 14, 30);
+        for (var ra = 0.0; ra < 360.0; ra += 30.0) {
+          for (var dec = -85.0; dec <= 85.0; dec += 17.0) {
+            final original = SkyPoint(ra, dec);
+            final horizontal = engine.equatorialToHorizontal(
+              original,
+              loc,
+              utc,
+            );
+            final back = engine.horizontalToEquatorial(horizontal, loc, utc);
+            expect(
+              back.angularDistanceTo(original),
+              lessThan(1e-6),
+              reason: 'round-trip mismatch at ra=$ra dec=$dec',
+            );
+          }
         }
-      }
-    });
+      },
+    );
 
     test('round trip also matches for a southern hemisphere observer', () {
       const loc = GeoLocation(latitudeDeg: -33.87, longitudeDeg: 151.21);
@@ -131,14 +150,17 @@ void main() {
       expect(back.angularDistanceTo(original), lessThan(1e-6));
     });
 
-    test('converting horizontal→equatorial then back returns the original horizontal coordinates', () {
-      const loc = GeoLocation.tokyo;
-      final utc = DateTime.utc(2026, 6, 11, 14, 30);
-      const horizontal = HorizontalCoord(altDeg: 45.0, azDeg: 120.0);
-      final radec = engine.horizontalToEquatorial(horizontal, loc, utc);
-      final back = engine.equatorialToHorizontal(radec, loc, utc);
-      expect(back.altDeg, closeTo(horizontal.altDeg, 1e-6));
-      expect(back.azDeg, closeTo(horizontal.azDeg, 1e-6));
-    });
+    test(
+      'converting horizontal→equatorial then back returns the original horizontal coordinates',
+      () {
+        const loc = GeoLocation.tokyo;
+        final utc = DateTime.utc(2026, 6, 11, 14, 30);
+        const horizontal = HorizontalCoord(altDeg: 45.0, azDeg: 120.0);
+        final radec = engine.horizontalToEquatorial(horizontal, loc, utc);
+        final back = engine.equatorialToHorizontal(radec, loc, utc);
+        expect(back.altDeg, closeTo(horizontal.altDeg, 1e-6));
+        expect(back.azDeg, closeTo(horizontal.azDeg, 1e-6));
+      },
+    );
   });
 }

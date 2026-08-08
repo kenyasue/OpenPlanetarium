@@ -58,19 +58,28 @@ void main() {
       expect(result.fRatio, closeTo(400 / 203, 0.01));
     });
 
-    test('2x Barlow doubles effective focal length and roughly halves the FOV', () {
-      final result = FovCalculator.cameraFov(rasa8, asi294, barlow2x);
-      expect(result.effectiveFocalLengthMm, 800);
-      expect(result.widthDeg, closeTo(2 * 0.6839, 0.014)); // 2*atan(19.1/1600)
-      expect(result.pixelScaleArcsec, closeTo(2.3875 / 2, 0.012));
-    });
+    test(
+      '2x Barlow doubles effective focal length and roughly halves the FOV',
+      () {
+        final result = FovCalculator.cameraFov(rasa8, asi294, barlow2x);
+        expect(result.effectiveFocalLengthMm, 800);
+        expect(
+          result.widthDeg,
+          closeTo(2 * 0.6839, 0.014),
+        ); // 2*atan(19.1/1600)
+        expect(result.pixelScaleArcsec, closeTo(2.3875 / 2, 0.012));
+      },
+    );
 
-    test('0.67x reducer shortens effective focal length and widens the FOV', () {
-      final result = FovCalculator.cameraFov(rasa8, asi294, reducer067);
-      expect(result.effectiveFocalLengthMm, closeTo(268, 1e-9));
-      final without = FovCalculator.cameraFov(rasa8, asi294, null);
-      expect(result.widthDeg, greaterThan(without.widthDeg));
-    });
+    test(
+      '0.67x reducer shortens effective focal length and widens the FOV',
+      () {
+        final result = FovCalculator.cameraFov(rasa8, asi294, reducer067);
+        expect(result.effectiveFocalLengthMm, closeTo(268, 1e-9));
+        final without = FovCalculator.cameraFov(rasa8, asi294, null);
+        expect(result.widthDeg, greaterThan(without.widthDeg));
+      },
+    );
   });
 
   group('FovCalculator.eyepieceFov', () {
@@ -105,31 +114,37 @@ void main() {
       );
     });
 
-    test('elongated object fits when it would fit after rotation (best case with free rotation)', () {
-      // A 0.4°×1.4° object fits a 2.0°×0.5° frame "if rotated"
-      expect(
-        FovCalculator.checkFit(
-          frameWidthDeg: 2.0,
-          frameHeightDeg: 0.5,
-          targetMajorDeg: 1.4,
-          targetMinorDeg: 0.4,
-        ),
-        FitResult.fits,
-      );
-    });
+    test(
+      'elongated object fits when it would fit after rotation (best case with free rotation)',
+      () {
+        // A 0.4°×1.4° object fits a 2.0°×0.5° frame "if rotated"
+        expect(
+          FovCalculator.checkFit(
+            frameWidthDeg: 2.0,
+            frameHeightDeg: 0.5,
+            targetMajorDeg: 1.4,
+            targetMinorDeg: 0.4,
+          ),
+          FitResult.fits,
+        );
+      },
+    );
 
-    test('near-square object is judged by the short side regardless of long-side margin', () {
-      // 1.4°×1.4° object vs 2.0°×1.5°: short-side ratio is 1.4/1.5≈0.93 in either orientation
-      expect(
-        FovCalculator.checkFit(
-          frameWidthDeg: 2.0,
-          frameHeightDeg: 1.5,
-          targetMajorDeg: 1.4,
-          targetMinorDeg: 1.4,
-        ),
-        FitResult.tight,
-      );
-    });
+    test(
+      'near-square object is judged by the short side regardless of long-side margin',
+      () {
+        // 1.4°×1.4° object vs 2.0°×1.5°: short-side ratio is 1.4/1.5≈0.93 in either orientation
+        expect(
+          FovCalculator.checkFit(
+            frameWidthDeg: 2.0,
+            frameHeightDeg: 1.5,
+            targetMajorDeg: 1.4,
+            targetMinorDeg: 1.4,
+          ),
+          FitResult.tight,
+        );
+      },
+    );
 
     test('small object is fits, borderline is tight', () {
       expect(
@@ -197,22 +212,25 @@ void main() {
       expect(diff, closeTo(4.0, 0.01)); // 2.0 / cos(60°) = 4.0
     });
 
-    test('all panel centers are placed symmetrically around the mosaic center', () {
-      final center = SkyPoint(100, 20);
-      final plan = FovCalculator.mosaicPlan(
-        center: center,
-        frameWidthDeg: 1.0,
-        frameHeightDeg: 1.0,
-        rows: 3,
-        cols: 3,
-        overlapRatio: 0.15,
-      );
-      final meanDec =
-          plan.panels.map((p) => p.center.decDeg).reduce((a, b) => a + b) / 9;
-      expect(meanDec, closeTo(20, 1e-9));
-      // Center panel (row1,col1) coincides with the mosaic center
-      final mid = plan.panels.firstWhere((p) => p.row == 1 && p.col == 1);
-      expect(mid.center.angularDistanceTo(center), lessThan(1e-9));
-    });
+    test(
+      'all panel centers are placed symmetrically around the mosaic center',
+      () {
+        final center = SkyPoint(100, 20);
+        final plan = FovCalculator.mosaicPlan(
+          center: center,
+          frameWidthDeg: 1.0,
+          frameHeightDeg: 1.0,
+          rows: 3,
+          cols: 3,
+          overlapRatio: 0.15,
+        );
+        final meanDec =
+            plan.panels.map((p) => p.center.decDeg).reduce((a, b) => a + b) / 9;
+        expect(meanDec, closeTo(20, 1e-9));
+        // Center panel (row1,col1) coincides with the mosaic center
+        final mid = plan.panels.firstWhere((p) => p.row == 1 && p.col == 1);
+        expect(mid.center.angularDistanceTo(center), lessThan(1e-9));
+      },
+    );
   });
 }

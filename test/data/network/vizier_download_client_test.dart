@@ -8,16 +8,19 @@ void main() {
   final index = SpatialIndex();
 
   group('SpatialIndex.tileBounds', () {
-    test('tile centers lie inside their bounds, and points inside belong to that tile', () {
-      for (var tile = 0; tile < index.tileCount; tile++) {
-        final b = index.tileBounds(tile);
-        final center = index.tileCenter(tile);
-        expect(center.raDeg, inInclusiveRange(b.raMinDeg, b.raMaxDeg));
-        expect(center.decDeg, inInclusiveRange(b.decMinDeg, b.decMaxDeg));
-        // A representative interior point (the center) maps back to the same tile
-        expect(index.tileIndexOf(center.raDeg, center.decDeg), tile);
-      }
-    });
+    test(
+      'tile centers lie inside their bounds, and points inside belong to that tile',
+      () {
+        for (var tile = 0; tile < index.tileCount; tile++) {
+          final b = index.tileBounds(tile);
+          final center = index.tileCenter(tile);
+          expect(center.raDeg, inInclusiveRange(b.raMinDeg, b.raMaxDeg));
+          expect(center.decDeg, inInclusiveRange(b.decMinDeg, b.decMaxDeg));
+          // A representative interior point (the center) maps back to the same tile
+          expect(index.tileIndexOf(center.raDeg, center.decDeg), tile);
+        }
+      },
+    );
 
     test('the combined tile bounds cover the whole sky', () {
       // In each Dec band, the RA rectangles fill 360° without gaps
@@ -96,26 +99,32 @@ void main() {
       expect(stars.first.colorIndexBV, isNull);
     });
 
-    test('mag 6.5 and brighter (bundled in BSC) and fainter than mag 10 are excluded', () {
-      final csv =
-          'TYC1,TYC2,TYC3,RAmdeg,DEmdeg,BTmag,VTmag\n'
-          '1,1,1,$raIn,$decIn,,6.4\n' // too bright (covered by BSC)
-          '1,2,1,$raIn,$decIn,,10.4\n' // too faint
-          '1,3,1,$raIn,$decIn,,9.9\n'; // accepted
-      final stars = VizieRDownloadClient.parseTycho2Csv(csv, tile, index);
-      expect(stars, hasLength(1));
-      expect(stars.first.id, 1 * 200000 + 3 * 4 + 1);
-    });
+    test(
+      'mag 6.5 and brighter (bundled in BSC) and fainter than mag 10 are excluded',
+      () {
+        final csv =
+            'TYC1,TYC2,TYC3,RAmdeg,DEmdeg,BTmag,VTmag\n'
+            '1,1,1,$raIn,$decIn,,6.4\n' // too bright (covered by BSC)
+            '1,2,1,$raIn,$decIn,,10.4\n' // too faint
+            '1,3,1,$raIn,$decIn,,9.9\n'; // accepted
+        final stars = VizieRDownloadClient.parseTycho2Csv(csv, tile, index);
+        expect(stars, hasLength(1));
+        expect(stars.first.id, 1 * 200000 + 3 * 4 + 1);
+      },
+    );
 
-    test('rows with missing coordinates and stars outside the tile are skipped', () {
-      final csv =
-          'TYC1,TYC2,TYC3,RAmdeg,DEmdeg,BTmag,VTmag\n'
-          '1,1,1,,,8.0,8.0\n' // missing coordinates
-          '1,2,1,200.0,80.0,,8.0\n' // outside the tile
-          '1,3,1,$raIn,$decIn,,8.0\n'; // accepted
-      final stars = VizieRDownloadClient.parseTycho2Csv(csv, tile, index);
-      expect(stars, hasLength(1));
-    });
+    test(
+      'rows with missing coordinates and stars outside the tile are skipped',
+      () {
+        final csv =
+            'TYC1,TYC2,TYC3,RAmdeg,DEmdeg,BTmag,VTmag\n'
+            '1,1,1,,,8.0,8.0\n' // missing coordinates
+            '1,2,1,200.0,80.0,,8.0\n' // outside the tile
+            '1,3,1,$raIn,$decIn,,8.0\n'; // accepted
+        final stars = VizieRDownloadClient.parseTycho2Csv(csv, tile, index);
+        expect(stars, hasLength(1));
+      },
+    );
 
     test('unexpected column layout raises a corruption error', () {
       expect(

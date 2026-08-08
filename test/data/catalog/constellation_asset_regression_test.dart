@@ -26,27 +26,34 @@ void main() {
         expect(c.nameLatin, isNotEmpty, reason: c.iau);
         expect(c.nameEn, isNotEmpty, reason: c.iau);
         expect(c.nameJa, isNotEmpty, reason: c.iau);
-        expect(c.nameJa, isNot(c.nameLatin), reason: '${c.iau} Japanese name not translated');
+        expect(
+          c.nameJa,
+          isNot(c.nameLatin),
+          reason: '${c.iau} Japanese name not translated',
+        );
         expect(c.lines, isNotEmpty, reason: c.iau);
       }
     });
 
-    test('all coordinates are in the normalized range (RA [0,360), Dec [-90,90])', () {
-      void check(SkyPoint p) {
-        expect(p.raDeg, inInclusiveRange(0, 360));
-        expect(p.decDeg, inInclusiveRange(-90, 90));
-      }
-
-      for (final c in set.constellations) {
-        check(c.labelAnchor);
-        for (final line in c.lines) {
-          line.forEach(check);
+    test(
+      'all coordinates are in the normalized range (RA [0,360), Dec [-90,90])',
+      () {
+        void check(SkyPoint p) {
+          expect(p.raDeg, inInclusiveRange(0, 360));
+          expect(p.decDeg, inInclusiveRange(-90, 90));
         }
-      }
-      for (final boundary in set.boundaries) {
-        boundary.forEach(check);
-      }
-    });
+
+        for (final c in set.constellations) {
+          check(c.labelAnchor);
+          for (final line in c.lines) {
+            line.forEach(check);
+          }
+        }
+        for (final boundary in set.boundaries) {
+          boundary.forEach(check);
+        }
+      },
+    );
 
     test('Orion lines include vertices near Betelgeuse and Rigel', () {
       final orion = set.constellations.firstWhere((c) => c.iau == 'Ori');
@@ -66,20 +73,26 @@ void main() {
       expect(hasVertexNear(rigel), isTrue, reason: 'Rigel not found');
     });
 
-    test('boundary polylines exist and precession did not produce extreme coordinates', () {
-      expect(set.boundaries.length, greaterThan(700)); // IAU boundaries have 781 edges
-      // B1875→J2000 precession is at most about 2°. Roughly confirm that boundaries
-      // near Crux exist (approximately RA 175-190°, Dec -55 to -65°)
-      final hasCruxRegion = set.boundaries.any(
-        (b) => b.any(
-          (p) =>
-              p.decDeg < -55 &&
-              p.decDeg > -65 &&
-              p.raDeg > 170 &&
-              p.raDeg < 195,
-        ),
-      );
-      expect(hasCruxRegion, isTrue);
-    });
+    test(
+      'boundary polylines exist and precession did not produce extreme coordinates',
+      () {
+        expect(
+          set.boundaries.length,
+          greaterThan(700),
+        ); // IAU boundaries have 781 edges
+        // B1875→J2000 precession is at most about 2°. Roughly confirm that boundaries
+        // near Crux exist (approximately RA 175-190°, Dec -55 to -65°)
+        final hasCruxRegion = set.boundaries.any(
+          (b) => b.any(
+            (p) =>
+                p.decDeg < -55 &&
+                p.decDeg > -65 &&
+                p.raDeg > 170 &&
+                p.raDeg < 195,
+          ),
+        );
+        expect(hasCruxRegion, isTrue);
+      },
+    );
   });
 }

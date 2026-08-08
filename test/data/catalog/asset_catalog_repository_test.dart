@@ -37,12 +37,15 @@ void main() {
   }
 
   group('AssetCatalogRepository', () {
-    test('returns only stars in the requested tiles (excludes out-of-viewport tiles)', () async {
-      final repo = buildRepo();
-      final stars = await repo.starsInTiles([1], 6.5);
-      expect(stars.map((s) => s.id), [100, 101, 102]);
-      expect(stars.any((s) => s.tileIndex == 2), isFalse);
-    });
+    test(
+      'returns only stars in the requested tiles (excludes out-of-viewport tiles)',
+      () async {
+        final repo = buildRepo();
+        final stars = await repo.starsInTiles([1], 6.5);
+        expect(stars.map((s) => s.id), [100, 101, 102]);
+        expect(stars.any((s) => s.tileIndex == 2), isFalse);
+      },
+    );
 
     test('stars fainter than the limiting magnitude are excluded', () async {
       final repo = buildRepo();
