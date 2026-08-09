@@ -344,7 +344,9 @@ class _LocationSectionState extends ConsumerState<LocationSection> {
               }
               return InteractiveViewer(
                 transformationController: _transformation,
-                maxScale: 8,
+                // 24x lets city-dense regions (e.g. Japan, Europe) be told
+                // apart; dot/marker sizes stay constant via viewScale
+                maxScale: 24,
                 onInteractionEnd: (_) => _onMapInteractionEnd(),
                 child: GestureDetector(
                   // Inside the InteractiveViewer the child's local
