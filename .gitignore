@@ -70,5 +70,10 @@ mvp-log.json
 # Catalog converter input cache (download on demand)
 tool/catalog_converter/cache/
 
-# Store submission assets (kept local only)
-store-assets/
+# Store submission: keystore/credentials and build artifacts stay local;
+# screenshots, feature graphics, and listing text are tracked
+store-assets/android/*.jks
+store-assets/android/keystore-credentials.txt
+store-assets/android/upload-keystore.base64.txt
+store-assets/android/*.aab
+__pycache__/
