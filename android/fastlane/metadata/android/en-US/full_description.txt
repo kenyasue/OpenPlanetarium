@@ -1,0 +1,34 @@
+Open Planetarium is a beautiful, scientifically accurate virtual planetarium.
+The full sky works completely offline — all star, constellation, and deep-sky
+data is bundled with the app.
+
+FEATURES
+
+• Real star catalog: 8,920 stars down to magnitude 6.5 (HYG v4.1), with
+  scientifically accurate star colors derived from each star's B-V color index
+• All 88 constellations: lines, names (English / Japanese / Latin), and
+  official IAU boundaries
+• Solar system: the Sun, the Moon with phases and lunar age, and all 7 planets,
+  computed with Meeus/Standish-compliant algorithms
+• Deep-sky objects: the complete Messier catalog (110 objects) plus major
+  NGC/IC objects — 717 objects in total, with type icons
+• Powerful search: object names, constellations, M/NGC/IC numbers, planets
+• Object details: magnitude, coordinates, altitude/azimuth, and
+  rise/transit/set times for your location
+• Time travel: set any date and time with the calendar dialog, scrub through
+  the day with the time slider, or play diurnal motion at 60×/600×/3600×
+• Observing location: pick your spot on a zoomable world map with 1,250+
+  cities, search by country/city, enter coordinates manually, or use GPS
+• Survey imagery: overlay DSS2 sky survey layers (downloaded on demand and
+  cached for offline re-display)
+• Equipment & field-of-view simulator: register telescopes, cameras, eyepieces
+  and Barlows/reducers to preview framing and plan mosaic imaging
+• Milky Way rendering and adjustable light-pollution levels
+
+PRIVACY
+
+Your location is used only on your device to compute the sky above you —
+it is never sent anywhere. If location permission is denied, you can set the
+observing location manually.
+
+Open Planetarium is free, open source (MIT), with no ads and no tracking.

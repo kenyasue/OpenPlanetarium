@@ -1,0 +1,1 @@
+New: calendar-based time settings dialog; world map observing-location picker with 1,250+ searchable cities; object names now follow the language setting; Android performance fixes.

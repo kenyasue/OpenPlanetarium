@@ -1,0 +1,3 @@
+package_name("org.yasue.open_planetarium")
+# Service account JSON is passed via the SUPPLY_JSON_KEY_DATA environment
+# variable in CI (GitHub secret PLAY_SERVICE_ACCOUNT_JSON) — no file needed.

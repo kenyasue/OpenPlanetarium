@@ -69,3 +69,6 @@ mvp-log.json
 
 # Catalog converter input cache (download on demand)
 tool/catalog_converter/cache/
+
+# Store submission assets (kept local only)
+store-assets/
