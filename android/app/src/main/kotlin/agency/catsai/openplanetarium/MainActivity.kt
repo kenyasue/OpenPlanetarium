@@ -1,4 +1,4 @@
-package org.yasue.open_planetarium
+package agency.catsai.openplanetarium
 
 import io.flutter.embedding.android.FlutterActivity
 
