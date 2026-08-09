@@ -60,6 +60,35 @@ dev_dependencies:
   mocktail: ^1.0.5
   drift_dev: ^2.34.0
   build_runner: ^2.15.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.6
+
+# App icon generation: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/icon.png"
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  # Full-bleed starfield: black adaptive background blends with the
+  # image's own black edges under any launcher mask shape
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/icon.png"
+  windows:
+    generate: true
+    image_path: "assets/icon.png"
+    icon_size: 256
+  macos:
+    generate: true
+    image_path: "assets/icon.png"
+
+# Native launch screen generation: dart run flutter_native_splash:create
+flutter_native_splash:
+  # Full-screen artwork (scaled to fill; edges are black so cropping is safe)
+  background_image: "assets/splashscreen.png"
+  # Android 12+ shows only a centered masked icon on a solid color (OS limit)
+  android_12:
+    image: "assets/icon.png"
+    color: "#000000"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
