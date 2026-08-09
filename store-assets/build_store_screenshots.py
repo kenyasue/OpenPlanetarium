@@ -18,7 +18,7 @@ CAPTIONS = {
 
 # Current representative portrait upload sizes.
 TARGETS = {
-    "iOS/phone": (1320, 2868),
+    "iOS/phone": (1242, 2688),
     "iOS/tablet": (2064, 2752),
     "android/phone": (1080, 1920),
 }
