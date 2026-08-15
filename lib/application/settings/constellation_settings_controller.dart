@@ -14,7 +14,7 @@ class ConstellationSettings {
     this.showBoundaries = false,
     this.lineOpacity = 0.35,
     this.lineWidth = 1.0,
-    this.language = NameLanguage.japanese,
+    this.language = NameLanguage.english,
   });
 
   final bool showLines;
@@ -126,7 +126,7 @@ class ConstellationSettingsController extends Notifier<ConstellationSettings> {
       lineWidth: (json['lineWidth'] as num?)?.toDouble() ?? 1.0,
       language:
           NameLanguage.values.asNameMap()[json['language']] ??
-          NameLanguage.japanese,
+          NameLanguage.english,
     );
   }
 }

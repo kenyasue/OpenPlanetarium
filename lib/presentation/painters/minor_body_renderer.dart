@@ -16,7 +16,7 @@ class MinorBodyRenderer implements SkyLayerRenderer {
   MinorBodyRenderer({
     required this.bodies,
     required this.sunPosition,
-    this.language = NameLanguage.japanese,
+    this.language = NameLanguage.english,
   });
 
   final List<MinorBodyPosition> bodies;

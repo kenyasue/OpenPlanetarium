@@ -41,7 +41,7 @@ class SearchService {
     required this.namedStars,
     required this.dsos,
     required this.constellations,
-    this.language = NameLanguage.japanese,
+    this.language = NameLanguage.english,
   });
 
   final List<Star> namedStars;

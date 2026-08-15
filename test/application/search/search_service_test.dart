@@ -34,6 +34,9 @@ void main() {
       ],
       dsos: dsos,
       constellations: constellations,
+      // The acceptance set below asserts Japanese labels, so the language is
+      // pinned explicitly (the app default is English)
+      language: NameLanguage.japanese,
     );
   });
 

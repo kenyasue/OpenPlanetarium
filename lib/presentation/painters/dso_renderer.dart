@@ -18,7 +18,7 @@ class DsoRenderer implements SkyLayerRenderer {
   DsoRenderer({
     required this.dsos,
     this.showLabels = true,
-    this.language = NameLanguage.japanese,
+    this.language = NameLanguage.english,
   });
 
   final List<DeepSkyObject> dsos;

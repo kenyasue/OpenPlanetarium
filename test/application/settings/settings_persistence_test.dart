@@ -79,6 +79,51 @@ void main() {
       },
     );
 
+    test('the default name language is English', () {
+      expect(const ConstellationSettings().language, NameLanguage.english);
+    });
+
+    test(
+      'a persisted japanese preference is restored (existing users keep their choice)',
+      () async {
+        final repo = InMemorySettingsRepository();
+        repo.values['settings.constellation'] =
+            '{"showLines":true,"showNames":true,"showBoundaries":false,'
+            '"lineOpacity":0.35,"lineWidth":1.0,"language":"japanese"}';
+
+        final container = ProviderContainer(
+          overrides: [settingsRepositoryProvider.overrideWithValue(repo)],
+        );
+        addTearDown(container.dispose);
+        container.read(constellationSettingsProvider);
+        await Future<void>.delayed(Duration.zero);
+
+        expect(
+          container.read(constellationSettingsProvider).language,
+          NameLanguage.japanese,
+        );
+      },
+    );
+
+    test(
+      'constellation settings JSON without a language key falls back to English',
+      () async {
+        final repo = InMemorySettingsRepository();
+        repo.values['settings.constellation'] = '{"showBoundaries":true}';
+
+        final container = ProviderContainer(
+          overrides: [settingsRepositoryProvider.overrideWithValue(repo)],
+        );
+        addTearDown(container.dispose);
+        container.read(constellationSettingsProvider);
+        await Future<void>.delayed(Duration.zero);
+
+        final restored = container.read(constellationSettingsProvider);
+        expect(restored.language, NameLanguage.english);
+        expect(restored.showBoundaries, isTrue); // other keys still restored
+      },
+    );
+
     test(
       'manual observing site is saved and restored in a new container (takes priority over GPS)',
       () async {
